@@ -19,7 +19,7 @@
 #include <INA226.h>
 #include "I2CTester.h"
 
-DWire wire(EUSCI_B1_BASE);
+DWire wire();
 DSerial serial;
 
 INA226 ina(wire, 0x40);
