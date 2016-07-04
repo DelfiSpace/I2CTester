@@ -19,7 +19,7 @@
 #include <INA226.h>
 #include "I2CTester.h"
 
-DWire wire();
+DWire wire;
 DSerial serial;
 
 INA226 ina(wire, 0x40);
@@ -38,7 +38,7 @@ void deviceFound(unsigned char device)
 void setup()
 {
   // Initialize I2C master
-  // TODO: speed?????
+  wire.setStandardSpeed();
   wire.begin();
   
   // initialize debug UART
@@ -87,9 +87,6 @@ void loop()
         serial.print("Current OFF: ");
         serial.print(i1, DEC);
         serial.println(" mA");
-
-  
-  
   
   delay(2354);
 }
