@@ -2,7 +2,7 @@
  * Copyright (c) 2016 by Stefano Speretta <s.speretta@tudelft.nl>
  *
  * I2CTester: this is an application designed to test the 
- * functionality of the I2C Tester setup. The setuo includes several 
+ * functionality of the I2C Tester setup. The setup includes several 
  * devices on different boards to perform a long duration test on 
  * the hardware and software implementation. It is designed to use 
  * Energia (the Arduino port for MSP microcontrollers) on an MSP432.
@@ -24,15 +24,36 @@ DSerial serial;
 
 INA226 ina(wire, 0x40);
 
+unsigned char dev[128];
+unsigned char devicesCount;
+
 void deviceFound(unsigned char device)
 {
-  serial.print("Found Address 0x");
-  if (device < 15) 
+  dev[devicesCount] = device;
+  devicesCount++;
+}
+
+void listDevices()
+{
+  if (devicesCount == 0)
   {
-      serial.print('0');
+    serial.println("No device found");
+    return;
   }
-  serial.print(device, HEX);
-  serial.println();
+  
+  for(int i = 0; i < devicesCount; i++)
+  {
+    if (dev[i] != 0)
+    {
+      serial.print("Found Address 0x");
+      if (dev[i] < 15) 
+      {
+        serial.print('0');
+      }
+      serial.print(dev[i], HEX);
+      serial.println();
+    }
+  }
 }
 
 void setup()
@@ -76,7 +97,7 @@ void loop()
 {
   // scan the bus and count the available devices
   serial.println("Scanning bus... ");
-  unsigned char c = I2CScanner::scan(wire, deviceFound);
+  unsigned char c = I2CScanner::scan(wire), deviceFound);
   serial.println("Scan completed");
   
   serial.println("INA226 present");
