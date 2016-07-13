@@ -15,13 +15,17 @@
 
 #include <INA226.h>
 #include <PCA9550.h>
+#include <MAX1237.h>
 
-INA226 ina2(wire, 0x45);
+//INA226 ina2(wire, 0x45);
 //PCA9550 blinker1(wire, 0x60);
 //PCA9550 blinker6(wire, 0x61);
 
+MAX1237 adc(wire);
+  
 void setupBlinkers()
 {
+  //serial.println("Blinkers setup");
 //delay(5000);
   // set the shunt resistor for the INA on bus 6
     //ina2.setShuntResistor(0.04);
@@ -43,10 +47,21 @@ void setupBlinkers()
   //blinker6.setPeriod(0, 0.01);
   // enable blinker
   //blinker6.blinkLED(0, 0);
+  
+  
 }
 
 void loopBlinkers()
 {
+ //adc.writeRegister(0x80 | 0x02 | (0x05 << 4));
+ // adc.writeRegister(CS2 | SCAN3 | 1);
+  
+    //unsigned short val = adc.readSingleChannel() >> 1; 
+    //serial.print("ADC: ");
+    //serial.print(val, DEC);
+    //serial.println(" mV");
+    
+  
   //ina2.setShuntResistor(0.04);
     
   //serial.println("INA226 present");
@@ -54,9 +69,9 @@ void loopBlinkers()
         // read the telemetry from the INA226
         //signed short i1 = ina2.getCurrent();
 
-        serial.print("Current 2 OFF: ");
+        //serial.print("Current 2 OFF: ");
         //serial.print(i1, DEC);
-        serial.println(" mA");
-  delay(500);
+        //serial.println(" mA");
+  //delay(500);
 }
 
