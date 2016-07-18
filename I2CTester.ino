@@ -195,5 +195,5 @@ void loop()
     }*/
   #endif
   
-  unsigned short val = adc.readSingleChannel() >> 1
+  unsigned short val = adc.readSingleChannel() >> 1;
 }
