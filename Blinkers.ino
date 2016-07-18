@@ -21,7 +21,7 @@
 //PCA9550 blinker1(wire, 0x60);
 //PCA9550 blinker6(wire, 0x61);
 
-MAX1237 adc(wire);
+//MAX1237 adc(wire);
   
 void setupBlinkers()
 {

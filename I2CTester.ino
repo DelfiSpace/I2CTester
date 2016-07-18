@@ -18,14 +18,15 @@
 #include <I2CScanner.h>
 #include <PCA9550.h>
 #include <INA226.h>
+#include <MAX1237.h>
 #include "I2CTester.h"
 
 DWire wire;
 DSerial serial;
 
 #define one true
-#define four false
-#define six false
+#define four true
+#define six true
 
 #if one
   INA226 ina_bus1(wire, 0x40);
@@ -40,6 +41,8 @@ DSerial serial;
 PCA9550 blinker1(wire, 0x60);
 PCA9550 blinker6(wire, 0x61);
 
+MAX1237 adc(wire);
+
 unsigned char dev[128];
 unsigned char devicesCount;
 
@@ -49,41 +52,48 @@ void deviceFound(unsigned char device)
   devicesCount++;
 }
 
-void scanBus()
+void scanBus(bool print)
 {
   devicesCount = 0;
   // scan the bus and count the available devices
-  serial.println();
-  serial.println("Scanning bus... ");
+  if (print)
+  { 
+     serial.println();
+     serial.println("Scanning bus... ");
+  }
+  
   I2CScanner::scan(wire, deviceFound);
   
-  for(int i = 0; i < devicesCount; i++)
-  {
-    if (dev[i] != 0)
+  if (print)
+  {   
+    for(int i = 0; i < devicesCount; i++)
     {
-      serial.print("-> Found Address 0x");
-      if (dev[i] < 15) 
+      if (dev[i] != 0)
       {
-        serial.print('0');
+        serial.print("-> Found Address 0x");
+        if (dev[i] < 15) 
+        {
+          serial.print('0');
+        }
+        serial.print(dev[i], HEX);
+        serial.println();
       }
-      serial.print(dev[i], HEX);
-      serial.println();
     }
+    
+    if (devicesCount == 0)
+    {
+      serial.println("No device found");
+    }
+    
+    serial.println("Scan completed");
+    serial.println();
   }
-  
-  if (devicesCount == 0)
-  {
-    serial.println("No device found");
-  }
-  
-  serial.println("Scan completed");
-  serial.println();
 }
 
 void setup()
 {
   // Initialize I2C master
-  wire.setStandardMode();
+  wire.setFastMode();
   wire.begin();
   
   // initialize debug UART
@@ -119,21 +129,20 @@ void setup()
   
   // setup blinker on bus 1
   // set DC to ~10%
-  /*blinker1.setDC(0, 25);
+  blinker1.setDC(0, 25);
   // set period to 0.5s
   blinker1.setPeriod(0, 0.5);
   // enable LED0 blinker on PWM channel 0
-  blinker1.blinkLED(0, 0); //-> stuck here
-  */
+  blinker1.blinkLED(0, 0); 
+
   // setup blinker on bus 6
   // set DC to ~10%
   blinker6.setDC(0, 25);
   // set period to 2s
   blinker6.setPeriod(0, 2);
   // enable LED0 blinker on PWM channel 0
-  serial.println("Blink");
   blinker6.blinkLED(0, 0);
-  serial.println("Blink OK");
+
   #if one
     ina_bus1.setShuntResistor(0.04);
     delay(20);
@@ -146,48 +155,45 @@ void setup()
     ina_bus6.setShuntResistor(0.04);
     delay(20);
   #endif
-  serial.println("setup done");
-  //serial.print(NUM_SKETCHES, DEC);
+  
+  // setup the ADC
+  adc.writeRegister(0x80 | 0x02 | (0x05 << 4));
+  adc.writeRegister(CS2 | SCAN3 | 1);
 }
 
 void loop()
 {
-   
-  scanBus();
+  scanBus(false);
   
-  serial.println("INA226 present");
-
   #if one
     signed short i1 = ina_bus1.getCurrent();
-    if ((i1 > 1500) || (i1 < 5))
+    /*if ((i1 > 1500) || (i1 < 5))
     {
         serial.print("Current BUS 1: ");
         serial.print(i1, DEC);
         serial.println(" mA");
-    }
+    }*/
   #endif
   
   #if four
     signed short i4 = ina_bus4.getCurrent();
-    if ((i4 > 1500) || (i4 < 5))
+    /*if ((i4 > 1500) || (i4 < 5))
     {
         serial.print("Current BUS 4: ");
         serial.print(i4, DEC);
         serial.println(" mA");
-    }
+    }*/
   #endif
   
   #if six
     signed short i6 = ina_bus6.getCurrent();
-    if ((i6 > 1500) || (i6 < 5))
+    /*if ((i6 > 1500) || (i6 < 5))
     {
         serial.print("Current BUS 6: ");
         serial.print(i6, DEC);
         serial.println(" mA");
-    }
+    }*/
   #endif
   
-   //serial.print(blinker6.readRegister(REG_LS0), HEX);
-   //serial.println();
-  //delay(354);
+  unsigned short val = adc.readSingleChannel() >> 1
 }
