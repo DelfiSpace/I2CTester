@@ -22,6 +22,14 @@
 #define BUS4        6
 #define BUS5       26
 #define BUS6       27
+
+// enable / disable the different devices
+#define INA_bus_one          1
+#define INA_bus_four         1
+#define INA_bus_six          1
+#define PCA9550_bus_one      1
+#define PCA9550_bus_six      1
+#define MAX1237_bus_four     1
    
 #endif
 

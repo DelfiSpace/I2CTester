@@ -24,24 +24,30 @@
 DWire wire;
 DSerial serial;
 
-#define one true
-#define four true
-#define six true
+// enable the use of serial port: it is useful 
+// for debugging but it slows the system down
+bool enablePrint = false;
 
-#if one
+#if INA_bus_one
   INA226 ina_bus1(wire, 0x40);
 #endif
-#if four
+#if INA_bus_four
   INA226 ina_bus4(wire, 0x44);
 #endif
-#if six
+#if INA_bus_six
   INA226 ina_bus6(wire, 0x45);
 #endif
 
-PCA9550 blinker1(wire, 0x60);
-PCA9550 blinker6(wire, 0x61);
+#if PCA9550_bus_one
+  PCA9550 blinker1(wire, 0x60);
+#endif
+#if PCA9550_bus_six
+  PCA9550 blinker6(wire, 0x61);
+#endif
 
-MAX1237 adc(wire);
+#if MAX1237_bus_four
+  MAX1237 adc(wire);
+#endif
 
 unsigned char dev[128];
 unsigned char devicesCount;
@@ -99,14 +105,6 @@ void setup()
   // initialize debug UART
   serial.begin();
   
-  // set the direction to output and enable all buses
-  pinMode(BUS1, OUTPUT);
-  pinMode(BUS2, OUTPUT);
-  pinMode(BUS3, OUTPUT);
-  pinMode(BUS4, OUTPUT);
-  pinMode(BUS5, OUTPUT);
-  pinMode(BUS6, OUTPUT);
-  
   // ensure the serial port is initialized
   delay(20);
   
@@ -115,85 +113,52 @@ void setup()
   serial.println("------------------    I2CTester    ------------------");
   serial.println("-----------------------------------------------------");
   serial.println();
-  
-  // initialize the GPIOs used to control the power buses high
-  digitalWrite(BUS1, HIGH); 
-  digitalWrite(BUS2, HIGH);
-  digitalWrite(BUS3, HIGH);
-  digitalWrite(BUS4, HIGH);
-  digitalWrite(BUS5, HIGH);
-  digitalWrite(BUS6, HIGH);
-  
-  // ensure power buses are all high
-  delay(10);
-  
-  // setup blinker on bus 1
-  // set DC to ~10%
-  blinker1.setDC(0, 25);
-  // set period to 0.5s
-  blinker1.setPeriod(0, 0.5);
-  // enable LED0 blinker on PWM channel 0
-  blinker1.blinkLED(0, 0); 
-
-  // setup blinker on bus 6
-  // set DC to ~10%
-  blinker6.setDC(0, 25);
-  // set period to 2s
-  blinker6.setPeriod(0, 2);
-  // enable LED0 blinker on PWM channel 0
-  blinker6.blinkLED(0, 0);
-
-  #if one
-    ina_bus1.setShuntResistor(0.04);
-    delay(20);
-  #endif
-  #if four
-    ina_bus4.setShuntResistor(0.04);
-    delay(20);
-  #endif
-  #if six
-    ina_bus6.setShuntResistor(0.04);
-    delay(20);
-  #endif
-  
-  // setup the ADC
-  adc.writeRegister(0x80 | 0x02 | (0x05 << 4));
-  adc.writeRegister(CS2 | SCAN3 | 1);
 }
 
 void loop()
 {
-  scanBus(false);
+  scanBus(enablePrint);
   
-  #if one
+  #if INA_bus_one
     signed short i1 = ina_bus1.getCurrent();
-    /*if ((i1 > 1500) || (i1 < 5))
+    if (enablePrint)
     {
-        serial.print("Current BUS 1: ");
-        serial.print(i1, DEC);
-        serial.println(" mA");
-    }*/
+      if ((i1 > 1500) || (i1 < 2))
+      {
+          serial.print("Current BUS 1: ");
+          serial.print(i1, DEC);
+          serial.println(" mA");
+      }
+    }
   #endif
   
-  #if four
+  #if INA_bus_four
     signed short i4 = ina_bus4.getCurrent();
-    /*if ((i4 > 1500) || (i4 < 5))
+    if (enablePrint)
     {
-        serial.print("Current BUS 4: ");
-        serial.print(i4, DEC);
-        serial.println(" mA");
-    }*/
+      if ((i4 > 1500) || (i4 < 2))
+      {
+          serial.print("Current BUS 4: ");
+          serial.print(i4, DEC);
+          serial.println(" mA");
+      }
+    }
   #endif
   
-  #if six
+  #if INA_bus_six
     signed short i6 = ina_bus6.getCurrent();
-    /*if ((i6 > 1500) || (i6 < 5))
+    if (enablePrint)
     {
-        serial.print("Current BUS 6: ");
-        serial.print(i6, DEC);
-        serial.println(" mA");
-    }*/
+      if ((i6 > 1500) || (i6 < 2))
+      {
+          serial.print("Current BUS 6: ");
+          serial.print(i6, DEC);
+          serial.println(" mA");
+      }
+    }
   #endif
   
-  unsigned short val = adc.readSingleChannel() >> 1;
+  #if MAX1237_bus_four
+    unsigned short val = adc.readSingleChannel() >> 1;
+  #endif
 }
