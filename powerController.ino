@@ -49,7 +49,7 @@ void setupPowerController()
 
 void loopPowerController()
 {
-  // ebable the busses in all possible combinations
+  // enable the busses in all possible combinations
   digitalWrite(BUS1, busStatus[currentStatus][0]);
   digitalWrite(BUS4, busStatus[currentStatus][1]);
   digitalWrite(BUS6, busStatus[currentStatus][2]);
