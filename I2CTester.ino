@@ -29,10 +29,10 @@ DSerial serial;
 bool enablePrint = false;
 
 #if INA_bus_one
-  INA226 ina_bus1(wire, 0x40);
+  INA226 ina_bus1(wire, 0x44);
 #endif
 #if INA_bus_four
-  INA226 ina_bus4(wire, 0x44);
+  INA226 ina_bus4(wire, 0x40);
 #endif
 #if INA_bus_six
   INA226 ina_bus6(wire, 0x45);
@@ -160,5 +160,14 @@ void loop()
   
   #if MAX1237_bus_four
     unsigned short val = adc.readSingleChannel() >> 1;
+    if (enablePrint)
+    {
+      if ((val > 1700) || (val < 1200))
+       {
+          serial.print("ADC BUS 4: ");
+          serial.print(val, DEC);
+          serial.println(" mV");
+       }
+    }
   #endif
 }

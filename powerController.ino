@@ -17,6 +17,7 @@
 
 // matrix containing all the possible bus configurations for bus 1, 4 and 6
 unsigned char busStatus[8][3] = {
+// BUS1  BUS4  BUS6  
   { LOW,  LOW,  LOW},
   { LOW,  LOW, HIGH},
   { LOW, HIGH,  LOW},
