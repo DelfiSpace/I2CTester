@@ -24,6 +24,7 @@
 #define BUS6       27
 
 // enable / disable the different devices
+#define scan_buses           1
 #define INA_bus_one          1
 #define INA_bus_four         1
 #define INA_bus_six          1

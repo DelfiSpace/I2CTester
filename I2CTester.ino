@@ -26,7 +26,9 @@ DSerial serial;
 
 // enable the use of serial port: it is useful 
 // for debugging but it slows the system down
-bool enablePrint = false;
+bool enablePrint = true;
+// force all the print (discarding the range checks)
+bool verbose = true;
 
 #if INA_bus_one
   INA226 ina_bus1(wire, 0x44);
@@ -58,11 +60,11 @@ void deviceFound(unsigned char device)
   devicesCount++;
 }
 
-void scanBus(bool print)
+void scanBus(bool printText)
 {
   devicesCount = 0;
   // scan the bus and count the available devices
-  if (print)
+  if (printText)
   { 
      serial.println();
      serial.println("Scanning bus... ");
@@ -70,7 +72,7 @@ void scanBus(bool print)
   
   I2CScanner::scan(wire, deviceFound);
   
-  if (print)
+  if (printText)
   {   
     for(int i = 0; i < devicesCount; i++)
     {
@@ -117,13 +119,15 @@ void setup()
 
 void loop()
 {
-  scanBus(enablePrint);
+  #if scan_buses
+    scanBus(enablePrint);
+  #endif
   
   #if INA_bus_one
     signed short i1 = ina_bus1.getCurrent();
     if (enablePrint)
     {
-      if ((i1 > 1500) || (i1 < 2))
+      if (verbose || (i1 > 1500) || (i1 < 2))
       {
           serial.print("Current BUS 1: ");
           serial.print(i1, DEC);
@@ -136,7 +140,7 @@ void loop()
     signed short i4 = ina_bus4.getCurrent();
     if (enablePrint)
     {
-      if ((i4 > 1500) || (i4 < 2))
+      if (verbose || (i4 > 1500) || (i4 < 2))
       {
           serial.print("Current BUS 4: ");
           serial.print(i4, DEC);
@@ -149,7 +153,7 @@ void loop()
     signed short i6 = ina_bus6.getCurrent();
     if (enablePrint)
     {
-      if ((i6 > 1500) || (i6 < 2))
+      if (verbose || (i6 > 1500) || (i6 < 2))
       {
           serial.print("Current BUS 6: ");
           serial.print(i6, DEC);
@@ -162,7 +166,7 @@ void loop()
     unsigned short val = adc.readSingleChannel() >> 1;
     if (enablePrint)
     {
-      if ((val > 1700) || (val < 1200))
+      if (verbose || (val > 1700) || (val < 1200))
        {
           serial.print("ADC BUS 4: ");
           serial.print(val, DEC);
