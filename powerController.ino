@@ -73,21 +73,21 @@ void loopPowerController()
   #if PCA9550_bus_one
     // setup blinker on bus 1
     // set DC to ~10%
-    blinker1.setDC(0, 25);
+    blinker1.setDC(25);
     // set period to 0.5s
-    blinker1.setPeriod(0, 0.5);
-    // enable LED0 blinker on PWM channel 0
-    blinker1.blinkLED(0, 0); 
+    blinker1.setPeriod(0.5);
+    // enable LED0 blinker
+    blinker1.blinkLED(); 
   #endif
   
   #if PCA9550_bus_six
     // setup blinker on bus 6
     // set DC to ~10%
-    blinker6.setDC(0, 25);
+    blinker6.setDC(25);
     // set period to 2s
-    blinker6.setPeriod(0, 2);
-    // enable LED0 blinker on PWM channel 0
-    blinker6.blinkLED(0, 0);
+    blinker6.setPeriod(2);
+    // enable LED0 blinker
+    blinker6.blinkLED();
   #endif
   
   #if INA_bus_one
